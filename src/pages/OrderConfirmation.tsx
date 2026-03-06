@@ -36,7 +36,7 @@ export default function OrderConfirmation() {
   return (
     <div className="min-h-screen py-16">
       <div className="container mx-auto max-w-lg px-4 text-center">
-        <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
+        <CheckCircle className="mx-auto h-16 w-16 text-success" />
         <h1 className="mt-4 font-display text-3xl font-bold">Order Confirmed!</h1>
         <p className="mt-2 text-muted-foreground">Thank you for your purchase. Your order is being processed.</p>
 

@@ -118,15 +118,15 @@ export default function Cart() {
               </div>
               {couponError && <p className="mt-1 text-xs text-destructive">Invalid coupon code</p>}
               {appliedCoupon && (
-                <p className="mt-1 flex items-center gap-1 text-xs text-green-600"><Tag className="h-3 w-3" /> {appliedCoupon} applied</p>
+                <p className="mt-1 flex items-center gap-1 text-xs text-success"><Tag className="h-3 w-3" /> {appliedCoupon} applied</p>
               )}
               <p className="mt-1 text-xs text-muted-foreground">Try: SAVE10, GTM2024, DEMO20</p>
             </div>
 
             <div className="mt-6 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-${discount.toFixed(2)}</span></div>}
-              <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span className="text-green-600">Free</span></div>
+              {discount > 0 && <div className="flex justify-between text-success"><span>Discount</span><span>-${discount.toFixed(2)}</span></div>}
+              <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span className="text-success">Free</span></div>
               <div className="border-t border-border pt-2 flex justify-between font-semibold text-base">
                 <span>Total</span><span>${total.toFixed(2)}</span>
               </div>
