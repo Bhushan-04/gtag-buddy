@@ -61,6 +61,10 @@ export default {
           light: "hsl(var(--orange-light))",
           glow: "hsl(var(--orange-glow))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         surface: {
           DEFAULT: "hsl(var(--surface))",
           elevated: "hsl(var(--surface-elevated))",
