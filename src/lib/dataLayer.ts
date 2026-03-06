@@ -43,7 +43,7 @@ export function subscribe(fn: () => void) {
   };
 }
 
-export function mapItemToGA4(product: { id: string; name: string; brand: string; category: string; price: number }, quantity = 1, index?: number) {
+export function mapItemToGA4(product: { id: string; name: string; brand: string; category: string; price: number }, quantity = 1, index?: number, variant?: string) {
   return {
     item_id: product.id,
     item_name: product.name,
@@ -52,5 +52,6 @@ export function mapItemToGA4(product: { id: string; name: string; brand: string;
     price: product.price,
     quantity,
     ...(index !== undefined ? { index } : {}),
+    ...(variant ? { item_variant: variant } : {}),
   };
 }

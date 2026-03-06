@@ -42,7 +42,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     pushEvent("add_to_cart", {
       currency: "USD",
       value: product.price,
-      items: [mapItemToGA4(product)],
+      items: [mapItemToGA4(product, 1, undefined, size)],
     });
   }, []);
 
@@ -53,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         pushEvent("remove_from_cart", {
           currency: "USD",
           value: item.product.price * item.quantity,
-          items: [mapItemToGA4(item.product, item.quantity)],
+          items: [mapItemToGA4(item.product, item.quantity, undefined, item.selectedSize)],
         });
       }
       return prev.filter((i) => i.product.id !== productId);

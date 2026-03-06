@@ -37,13 +37,28 @@ export default function Cart() {
   };
 
   const handlePaymentInfo = () => {
+    pushEvent("add_shipping_info", {
+      currency: "USD",
+      value: total,
+      shipping_tier: "Ground",
+      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx, i.selectedSize)),
+    });
     pushEvent("add_payment_info", {
       currency: "USD",
       value: total,
       payment_type: "Credit Card",
-      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx)),
+      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx, i.selectedSize)),
     });
     navigate("/order-confirmation");
+  };
+
+  const handleRemove = (item: any) => {
+    pushEvent("remove_from_cart", {
+      currency: "USD",
+      value: item.product.price * item.quantity,
+      items: [mapItemToGA4(item.product, item.quantity)],
+    });
+    removeItem(item.product.id);
   };
 
   if (items.length === 0) {
@@ -88,7 +103,7 @@ export default function Cart() {
                       <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="rounded-md border border-border p-1 hover:bg-muted transition-colors">
                         <Plus className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => removeItem(item.product.id)} className="ml-2 p-1 text-destructive hover:text-destructive/80 transition-colors">
+                      <button onClick={() => handleRemove(item)} className="ml-2 p-1 text-destructive hover:text-destructive/80 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>

@@ -26,9 +26,8 @@ export default function GTMEventMonitor() {
     <div className="fixed bottom-4 right-4 z-50 font-body" style={{ maxWidth: 380 }}>
       <button
         onClick={() => setOpen(!open)}
-        className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium shadow-lg transition-all ${
-          flash ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"
-        }`}
+        className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium shadow-lg transition-all ${flash ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"
+          }`}
       >
         <Activity className="h-4 w-4" />
         GTM Monitor
@@ -50,9 +49,15 @@ export default function GTMEventMonitor() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Last 5 Events
               </span>
-              <button onClick={() => setOpen(false)}>
-                <X className="h-3.5 w-3.5 text-muted-foreground" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { window.dataLayer = []; window.location.reload(); }}
+                  className="text-[10px] text-muted-foreground hover:text-accent font-medium uppercase"
+                >
+                  Reset
+                </button>
+                <X className="h-3.5 w-3.5 text-muted-foreground cursor-pointer" onClick={() => setOpen(false)} />
+              </div>
             </div>
             <div className="max-h-72 overflow-y-auto">
               {last5.length === 0 ? (
@@ -88,14 +93,25 @@ function EventRow({ event }: { event: DataLayerEvent }) {
       </button>
       <AnimatePresence>
         {expanded && (
-          <motion.pre
+          <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-auto bg-muted/30 px-4 py-2 text-xs text-muted-foreground"
+            className="relative bg-muted/30 px-4 py-3 text-xs text-muted-foreground"
           >
-            {JSON.stringify(rest, null, 2)}
-          </motion.pre>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(JSON.stringify(rest, null, 2));
+              }}
+              className="absolute right-2 top-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent hover:bg-accent/20"
+            >
+              Copy JSON
+            </button>
+            <pre className="overflow-auto max-h-40">
+              {JSON.stringify(rest, null, 2)}
+            </pre>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

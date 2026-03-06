@@ -15,6 +15,13 @@ export default function Home() {
       promotion_id: "HERO_SPRING_2024",
       promotion_name: "Spring Tech Sale",
     });
+
+    pushEvent("view_promotion", {
+      creative_name: "Coupon Banner",
+      creative_slot: "bottom",
+      promotion_id: "COUPON_BANNER",
+      promotion_name: "SAVE10 Coupon Banner",
+    });
   }, []);
 
   const handlePromotionClick = () => {
