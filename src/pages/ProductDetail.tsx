@@ -128,8 +128,9 @@ export default function ProductDetail() {
                 ? "bg-green-600 text-primary-foreground"
                 : "bg-accent text-accent-foreground shadow-orange hover:bg-orange-light"
                 }`}
+              id="addtocart"
             >
-              {added ? <><Check className="h-5 w-5" /> Added to Cart</> : <><ShoppingCart className="h-5 w-5" id="addtocart" /> Add to Cart</>}
+              {added ? <><Check className="h-5 w-5" /> Added to Cart</> : <><ShoppingCart className="h-5 w-5" /> Add to Cart</>}
             </button>
           </div>
         </div>
