@@ -58,9 +58,8 @@ export default function ProductDetail() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`h-16 w-16 overflow-hidden rounded-md border-2 transition-colors ${
-                      i === selectedImage ? "border-accent" : "border-border"
-                    }`}
+                    className={`h-16 w-16 overflow-hidden rounded-md border-2 transition-colors ${i === selectedImage ? "border-accent" : "border-border"
+                      }`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -111,11 +110,10 @@ export default function ProductDetail() {
                   <button
                     key={s}
                     onClick={() => setSelectedSize(s)}
-                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
-                      s === selectedSize
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-border hover:border-foreground/30"
-                    }`}
+                    className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${s === selectedSize
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border hover:border-foreground/30"
+                      }`}
                   >
                     {s}
                   </button>
@@ -126,13 +124,12 @@ export default function ProductDetail() {
             {/* Add to Cart */}
             <button
               onClick={handleAddToCart}
-              className={`mt-8 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-medium transition-all ${
-                added
-                  ? "bg-green-600 text-primary-foreground"
-                  : "bg-accent text-accent-foreground shadow-orange hover:bg-orange-light"
-              }`}
+              className={`mt-8 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-medium transition-all ${added
+                ? "bg-green-600 text-primary-foreground"
+                : "bg-accent text-accent-foreground shadow-orange hover:bg-orange-light"
+                }`}
             >
-              {added ? <><Check className="h-5 w-5" /> Added to Cart</> : <><ShoppingCart className="h-5 w-5" /> Add to Cart</>}
+              {added ? <><Check className="h-5 w-5" /> Added to Cart</> : <><ShoppingCart className="h-5 w-5" id="addtocart" /> Add to Cart</>}
             </button>
           </div>
         </div>
