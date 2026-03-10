@@ -142,7 +142,7 @@ export default function Navbar() {
               <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="block text-sm text-destructive">Logout</button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-accent">Login</Link>
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm font-medium text-accent" id="login">Login</Link>
           )}
         </div>
       )}
