@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { Product } from "@/data/products";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
 
 export interface CartItem {
   product: Product;
@@ -39,36 +38,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, { product, quantity: 1, selectedSize: size }];
     });
-    pushEvent("add_to_cart", {
-      currency: "USD",
-      value: product.price,
-      items: [mapItemToGA4(product, 1, undefined, size)],
-    });
   }, []);
 
   const removeItem = useCallback((productId: string) => {
-    setItems((prev) => {
-      const item = prev.find((i) => i.product.id === productId);
-      if (item) {
-        pushEvent("remove_from_cart", {
-          currency: "USD",
-          value: item.product.price * item.quantity,
-          items: [mapItemToGA4(item.product, item.quantity, undefined, item.selectedSize)],
-        });
-      }
-      return prev.filter((i) => i.product.id !== productId);
-    });
+    setItems((prev) => prev.filter((i) => i.product.id !== productId));
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      setItems((prev) => prev.filter((i) => i.product.id !== productId));
       return;
     }
     setItems((prev) =>
       prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i))
     );
-  }, [removeItem]);
+  }, []);
 
   const clearCart = useCallback(() => {
     setItems([]);
@@ -80,7 +64,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const upper = code.toUpperCase();
     if (validCoupons.includes(upper)) {
       setAppliedCoupon(upper);
-      pushEvent("apply_coupon", { coupon: upper });
       return true;
     }
     return false;
