@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Product } from "@/data/products";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
 import { Star } from "lucide-react";
 
 interface Props {
@@ -10,17 +9,9 @@ interface Props {
 }
 
 export default function ProductCard({ product, index, listName = "Product Listing" }: Props) {
-  const handleClick = () => {
-    pushEvent("select_item", {
-      item_list_name: listName,
-      items: [mapItemToGA4(product, 1, index)],
-    });
-  };
-
   return (
     <Link
       to={`/product/${product.id}`}
-      onClick={handleClick}
       className="group block overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:shadow-md hover:-translate-y-1"
     >
       <div className="relative aspect-square overflow-hidden bg-muted">

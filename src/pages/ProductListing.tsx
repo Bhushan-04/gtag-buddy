@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { products, categories, brands } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
 
 export default function ProductListing() {
   const [category, setCategory] = useState("All");
@@ -17,13 +16,6 @@ export default function ProductListing() {
   if (sort === "price-low") filtered.sort((a, b) => a.price - b.price);
   else if (sort === "price-high") filtered.sort((a, b) => b.price - a.price);
   else if (sort === "rating") filtered.sort((a, b) => b.rating - a.rating);
-
-  useEffect(() => {
-    pushEvent("view_item_list", {
-      item_list_name: "Product Listing",
-      items: filtered.map((p, i) => mapItemToGA4(p, 1, i)),
-    });
-  }, [category, brand]);
 
   return (
     <div className="min-h-screen py-8">

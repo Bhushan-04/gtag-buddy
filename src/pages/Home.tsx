@@ -1,37 +1,10 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Zap, Shield, Truck } from "lucide-react";
 import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
 
 export default function Home() {
   const featured = products.slice(0, 4);
-
-  useEffect(() => {
-    pushEvent("view_promotion", {
-      creative_name: "Hero Banner",
-      creative_slot: "hero",
-      promotion_id: "HERO_SPRING_2024",
-      promotion_name: "Spring Tech Sale",
-    });
-
-    pushEvent("view_promotion", {
-      creative_name: "Coupon Banner",
-      creative_slot: "bottom",
-      promotion_id: "COUPON_BANNER",
-      promotion_name: "SAVE10 Coupon Banner",
-    });
-  }, []);
-
-  const handlePromotionClick = () => {
-    pushEvent("select_promotion", {
-      creative_name: "Hero Banner",
-      creative_slot: "hero",
-      promotion_id: "HERO_SPRING_2024",
-      promotion_name: "Spring Tech Sale",
-    });
-  };
 
   return (
     <div className="min-h-screen">
@@ -55,7 +28,6 @@ export default function Home() {
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               to="/products"
-              onClick={handlePromotionClick}
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-medium text-accent-foreground shadow-orange transition-all hover:bg-orange-light"
             >
               Shop Now <ArrowRight className="h-4 w-4" />
@@ -91,7 +63,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             {featured.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} listName="Featured Products" />
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
         </div>
@@ -106,7 +78,6 @@ export default function Home() {
           <p className="mt-2 text-primary-foreground/70">Limited time offer on all electronics</p>
           <Link
             to="/products"
-            onClick={() => pushEvent("select_promotion", { promotion_id: "COUPON_BANNER", promotion_name: "SAVE10 Coupon Banner" })}
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 font-medium text-accent-foreground shadow-orange hover:bg-orange-light transition-all"
           >
             Shop Now <ArrowRight className="h-4 w-4" />
