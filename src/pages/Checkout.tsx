@@ -99,6 +99,15 @@ export default function Checkout() {
 
       addOrder(order);
       clearCart();
+      
+      // Send purchase event to GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'purchase',
+        value: grandTotal,
+        currency: 'USD'
+      });
+
       navigate("/confirmation", { replace: true });
     }, 2000);
   };
