@@ -68,7 +68,7 @@ export default function Navbar() {
               </button>
             </form>
           ) : (
-            <button onClick={() => setSearchOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => setSearchOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors" id="search">
               <Search className="h-5 w-5" />
             </button>
           )}
