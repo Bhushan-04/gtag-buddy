@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
+import { useAuth } from "@/context/AuthContext";
 import { Star, ShoppingCart, Check, ArrowLeft } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const product = products.find((p) => p.id === id);
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
   const [added, setAdded] = useState(false);
@@ -16,11 +18,6 @@ export default function ProductDetail() {
   useEffect(() => {
     if (product) {
       setSelectedSize(product.sizes[0]);
-      pushEvent("view_item", {
-        currency: "USD",
-        value: product.price,
-        items: [mapItemToGA4(product)],
-      });
     }
   }, [product?.id]);
 
@@ -34,6 +31,10 @@ export default function ProductDetail() {
   }
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=/product/${product.id}`);
+      return;
+    }
     addItem(product, selectedSize);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -47,7 +48,6 @@ export default function ProductDetail() {
         </Link>
 
         <div className="grid gap-8 md:grid-cols-2 lg:gap-12">
-          {/* Images */}
           <div>
             <div className="aspect-square overflow-hidden rounded-lg bg-muted">
               <img src={product.images[selectedImage]} alt={product.name} className="h-full w-full object-cover" />
@@ -58,8 +58,7 @@ export default function ProductDetail() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`h-16 w-16 overflow-hidden rounded-md border-2 transition-colors ${i === selectedImage ? "border-accent" : "border-border"
-                      }`}
+                    className={`h-16 w-16 overflow-hidden rounded-md border-2 transition-colors ${i === selectedImage ? "border-accent" : "border-border"}`}
                   >
                     <img src={img} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -68,7 +67,6 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* Info */}
           <div>
             <p className="text-sm font-medium text-accent uppercase tracking-wider">{product.brand}</p>
             <h1 className="mt-2 font-display text-3xl font-bold">{product.name}</h1>
@@ -95,14 +93,12 @@ export default function ProductDetail() {
 
             <p className="mt-6 text-muted-foreground leading-relaxed">{product.description}</p>
 
-            {/* Features */}
             <div className="mt-6 flex flex-wrap gap-2">
               {product.features.map((f) => (
                 <span key={f} className="rounded-full bg-muted px-3 py-1 text-xs font-medium">{f}</span>
               ))}
             </div>
 
-            {/* Size Selector */}
             <div className="mt-6">
               <label className="text-sm font-medium">Variant</label>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -113,7 +109,7 @@ export default function ProductDetail() {
                     className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${s === selectedSize
                       ? "border-accent bg-accent/10 text-accent"
                       : "border-border hover:border-foreground/30"
-                      }`}
+                    }`}
                   >
                     {s}
                   </button>
@@ -121,13 +117,12 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart */}
             <button
               onClick={handleAddToCart}
               className={`mt-8 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-medium transition-all ${added
                 ? "bg-green-600 text-primary-foreground"
                 : "bg-accent text-accent-foreground shadow-orange hover:bg-orange-light"
-                }`}
+              }`}
               id="addtocart"
             >
               {added ? <><Check className="h-5 w-5" /> Added to Cart</> : <><ShoppingCart className="h-5 w-5" /> Add to Cart</>}
