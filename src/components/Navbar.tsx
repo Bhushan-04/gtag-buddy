@@ -58,7 +58,7 @@ export default function Navbar() {
           )}
 
           <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => handleAuth("login")} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <button onClick={() => handleAuth("login")} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors" id="login">
               Login
             </button>
             <button onClick={() => handleAuth("sign_up")} className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-orange-light transition-colors">
