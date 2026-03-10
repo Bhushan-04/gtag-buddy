@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { pushEvent, mapItemToGA4 } from "@/lib/dataLayer";
+import { useAuth } from "@/context/AuthContext";
 import { Trash2, Plus, Minus, ShoppingBag, Tag } from "lucide-react";
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, total, discount, appliedCoupon, applyCoupon, itemCount } = useCart();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [couponInput, setCouponInput] = useState("");
   const [couponError, setCouponError] = useState(false);
-  const [paymentStep, setPaymentStep] = useState(false);
-
-  useEffect(() => {
-    if (items.length > 0) {
-      pushEvent("view_cart", {
-        currency: "USD",
-        value: total,
-        items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx)),
-      });
-    }
-  }, []);
 
   const handleCoupon = () => {
     const ok = applyCoupon(couponInput);
@@ -28,37 +18,11 @@ export default function Cart() {
   };
 
   const handleCheckout = () => {
-    pushEvent("begin_checkout", {
-      currency: "USD",
-      value: total,
-      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx)),
-    });
-    setPaymentStep(true);
-  };
-
-  const handlePaymentInfo = () => {
-    pushEvent("add_shipping_info", {
-      currency: "USD",
-      value: total,
-      shipping_tier: "Ground",
-      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx, i.selectedSize)),
-    });
-    pushEvent("add_payment_info", {
-      currency: "USD",
-      value: total,
-      payment_type: "Credit Card",
-      items: items.map((i, idx) => mapItemToGA4(i.product, i.quantity, idx, i.selectedSize)),
-    });
-    navigate("/order-confirmation");
-  };
-
-  const handleRemove = (item: any) => {
-    pushEvent("remove_from_cart", {
-      currency: "USD",
-      value: item.product.price * item.quantity,
-      items: [mapItemToGA4(item.product, item.quantity)],
-    });
-    removeItem(item.product.id);
+    if (!isAuthenticated) {
+      navigate("/login?redirect=/checkout");
+      return;
+    }
+    navigate("/checkout");
   };
 
   if (items.length === 0) {
@@ -83,7 +47,6 @@ export default function Cart() {
         <p className="mt-1 text-muted-foreground">{itemCount} item{itemCount !== 1 ? "s" : ""}</p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
-          {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
               <div key={item.product.id} className="flex gap-4 rounded-lg border border-border bg-card p-4">
@@ -103,7 +66,7 @@ export default function Cart() {
                       <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="rounded-md border border-border p-1 hover:bg-muted transition-colors">
                         <Plus className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => handleRemove(item)} className="ml-2 p-1 text-destructive hover:text-destructive/80 transition-colors">
+                      <button onClick={() => removeItem(item.product.id)} className="ml-2 p-1 text-destructive hover:text-destructive/80 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -114,11 +77,9 @@ export default function Cart() {
             ))}
           </div>
 
-          {/* Summary */}
           <div className="rounded-lg border border-border bg-card p-6 h-fit">
             <h2 className="font-display text-lg font-semibold">Order Summary</h2>
 
-            {/* Coupon */}
             <div className="mt-4">
               <div className="flex gap-2">
                 <input
@@ -147,29 +108,12 @@ export default function Cart() {
               </div>
             </div>
 
-            {!paymentStep ? (
-              <button
-                onClick={handleCheckout}
-                className="mt-6 w-full rounded-lg bg-accent py-3 font-medium text-accent-foreground shadow-orange hover:bg-orange-light transition-all"
-              >
-                Proceed to Checkout
-              </button>
-            ) : (
-              <div className="mt-6 space-y-3">
-                <p className="text-sm font-medium">Payment Details (Demo)</p>
-                <input placeholder="Card number" defaultValue="4242 4242 4242 4242" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" readOnly />
-                <div className="flex gap-2">
-                  <input placeholder="MM/YY" defaultValue="12/28" className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm" readOnly />
-                  <input placeholder="CVC" defaultValue="123" className="w-20 rounded-md border border-input bg-background px-3 py-2 text-sm" readOnly />
-                </div>
-                <button
-                  onClick={handlePaymentInfo}
-                  className="w-full rounded-lg bg-accent py-3 font-medium text-accent-foreground shadow-orange hover:bg-orange-light transition-all"
-                >
-                  Complete Purchase
-                </button>
-              </div>
-            )}
+            <button
+              onClick={handleCheckout}
+              className="mt-6 w-full rounded-lg bg-accent py-3 font-medium text-accent-foreground shadow-orange hover:bg-orange-light transition-all"
+            >
+              Proceed to Checkout
+            </button>
           </div>
         </div>
       </div>

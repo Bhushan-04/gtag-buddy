@@ -1,28 +1,45 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
+import { ShoppingCart, Search, Menu, X, LogOut, Package, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { pushEvent } from "@/lib/dataLayer";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const { itemCount } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      pushEvent("search", { search_term: searchQuery.trim() });
       setSearchQuery("");
       setSearchOpen(false);
     }
   };
 
-  const handleAuth = (type: "login" | "sign_up") => {
-    pushEvent(type, { method: "email" });
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    setMobileOpen(false);
+    navigate("/");
   };
+
+  const getInitial = (name: string) => name.charAt(0).toUpperCase();
 
   return (
     <nav className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-md">
@@ -57,13 +74,46 @@ export default function Navbar() {
             </button>
           )}
 
+          {/* Auth area - desktop */}
           <div className="hidden md:flex items-center gap-1">
-            <button onClick={() => handleAuth("login")} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Login
-            </button>
-            <button onClick={() => handleAuth("sign_up")} className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-orange-light transition-colors">
-              Sign Up
-            </button>
+            {isAuthenticated && user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted transition-colors"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+                    {getInitial(user.name)}
+                  </div>
+                  <span className="text-sm font-medium max-w-[100px] truncate">{user.name.split(" ")[0]}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-border bg-card shadow-lg py-1 z-50">
+                    <Link
+                      to="/orders"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+                    >
+                      <Package className="h-4 w-4" /> My Orders
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-md bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground hover:bg-orange-light transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           <Link to="/cart" className="relative p-2 text-muted-foreground hover:text-foreground transition-colors">
@@ -86,10 +136,24 @@ export default function Navbar() {
           <Link to="/" onClick={() => setMobileOpen(false)} className="block text-sm font-medium">Home</Link>
           <Link to="/products" onClick={() => setMobileOpen(false)} className="block text-sm font-medium">Products</Link>
           <Link to="/cart" onClick={() => setMobileOpen(false)} className="block text-sm font-medium">Cart</Link>
-          <div className="flex gap-2 pt-2">
-            <button onClick={() => handleAuth("login")} className="text-sm text-muted-foreground">Login</button>
-            <button onClick={() => handleAuth("sign_up")} className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground">Sign Up</button>
-          </div>
+          {isAuthenticated && user ? (
+            <>
+              <Link to="/orders" onClick={() => setMobileOpen(false)} className="block text-sm font-medium">My Orders</Link>
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+                    {getInitial(user.name)}
+                  </div>
+                  <span className="text-sm font-medium">{user.name}</span>
+                </div>
+                <button onClick={handleLogout} className="text-sm text-destructive">Logout</button>
+              </div>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setMobileOpen(false)} className="block rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground text-center">
+              Login
+            </Link>
+          )}
         </div>
       )}
     </nav>
