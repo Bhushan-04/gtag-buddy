@@ -7,6 +7,30 @@ import { CreditCard, Smartphone, Banknote, Loader2, Tag } from "lucide-react";
 
 type PaymentMethod = "card" | "upi" | "cod";
 
+interface InputFieldProps {
+  label: string;
+  field: keyof OrderAddress;
+  placeholder: string;
+  type?: string;
+  value: string;
+  onChange: (field: keyof OrderAddress, value: string) => void;
+  error?: string;
+}
+
+const InputField = ({ label, field, placeholder, type = "text", value, onChange, error }: InputFieldProps) => (
+  <div>
+    <label className="text-sm font-medium mb-1 block">{label}</label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(field, e.target.value)}
+      placeholder={placeholder}
+      className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+    />
+    {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+  </div>
+);
+
 export default function Checkout() {
   const { isAuthenticated, user } = useAuth();
   const { items, total, discount, appliedCoupon, applyCoupon, clearCart } = useCart();
@@ -117,20 +141,6 @@ export default function Checkout() {
     if (errors[field]) setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
   };
 
-  const InputField = ({ label, field, placeholder, type = "text" }: { label: string; field: string; placeholder: string; type?: string }) => (
-    <div>
-      <label className="text-sm font-medium mb-1 block">{label}</label>
-      <input
-        type={type}
-        value={(address as any)[field] || ""}
-        onChange={(e) => updateAddress(field as keyof OrderAddress, e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-      />
-      {errors[field] && <p className="mt-1 text-xs text-destructive">{errors[field]}</p>}
-    </div>
-  );
-
   if (!isAuthenticated || items.length === 0) return null;
 
   return (
@@ -146,18 +156,18 @@ export default function Checkout() {
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="font-display text-lg font-semibold mb-4">Delivery Address</h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <InputField label="Full Name" field="fullName" placeholder="John Doe" />
-                <InputField label="Email" field="email" placeholder="you@example.com" type="email" />
-                <InputField label="Phone Number" field="phone" placeholder="+1 234 567 8900" />
+                <InputField label="Full Name" field="fullName" placeholder="John Doe" value={address.fullName} onChange={updateAddress} error={errors.fullName} />
+                <InputField label="Email" field="email" placeholder="you@example.com" type="email" value={address.email} onChange={updateAddress} error={errors.email} />
+                <InputField label="Phone Number" field="phone" placeholder="+1 234 567 8900" value={address.phone} onChange={updateAddress} error={errors.phone} />
                 <div className="sm:col-span-2">
-                  <InputField label="Address Line 1" field="address1" placeholder="123 Main Street" />
+                  <InputField label="Address Line 1" field="address1" placeholder="123 Main Street" value={address.address1} onChange={updateAddress} error={errors.address1} />
                 </div>
                 <div className="sm:col-span-2">
-                  <InputField label="Address Line 2" field="address2" placeholder="Apt, Suite (optional)" />
+                  <InputField label="Address Line 2" field="address2" placeholder="Apt, Suite (optional)" value={address.address2} onChange={updateAddress} error={errors.address2} />
                 </div>
-                <InputField label="City" field="city" placeholder="New York" />
-                <InputField label="State" field="state" placeholder="NY" />
-                <InputField label="Pincode" field="pincode" placeholder="10001" />
+                <InputField label="City" field="city" placeholder="New York" value={address.city} onChange={updateAddress} error={errors.city} />
+                <InputField label="State" field="state" placeholder="NY" value={address.state} onChange={updateAddress} error={errors.state} />
+                <InputField label="Pincode" field="pincode" placeholder="10001" value={address.pincode} onChange={updateAddress} error={errors.pincode} />
               </div>
             </div>
 
