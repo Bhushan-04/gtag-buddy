@@ -25,6 +25,13 @@ export default function Login() {
       : login(email, password);
 
     if (result.success) {
+      // Send login event to GTM
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'login',
+        user_email: email
+      });
+
       navigate(redirectTo, { replace: true });
     } else {
       setError(result.error || "Something went wrong");
