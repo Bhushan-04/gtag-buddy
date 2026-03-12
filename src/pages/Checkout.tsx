@@ -7,6 +7,28 @@ import { CreditCard, Smartphone, Banknote, Loader2, Tag } from "lucide-react";
 
 type PaymentMethod = "card" | "upi" | "cod";
 
+const InputField = ({ label, field, placeholder, type = "text", address, errors, updateAddress }: {
+  label: string;
+  field: string;
+  placeholder: string;
+  type?: string;
+  address: OrderAddress;
+  errors: Record<string, string>;
+  updateAddress: (field: keyof OrderAddress, value: string) => void;
+}) => (
+  <div>
+    <label className="text-sm font-medium mb-1 block">{label}</label>
+    <input
+      type={type}
+      value={(address as any)[field] || ""}
+      onChange={(e) => updateAddress(field as keyof OrderAddress, e.target.value)}
+      placeholder={placeholder}
+      className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+    />
+    {errors[field] && <p className="mt-1 text-xs text-destructive">{errors[field]}</p>}
+  </div>
+);
+
 export default function Checkout() {
   const { isAuthenticated, user } = useAuth();
   const { items, total, discount, appliedCoupon, applyCoupon, clearCart } = useCart();
@@ -99,13 +121,15 @@ export default function Checkout() {
 
       addOrder(order);
       clearCart();
-      
+
       // Send purchase event to GTM
       window.dataLayer = window.dataLayer || [];
+      const productNames = items.map(item => item.product.name);
       window.dataLayer.push({
         event: 'purchase',
         value: grandTotal,
-        currency: 'USD'
+        currency: 'USD',
+        product_name: productNames
       });
 
       navigate("/confirmation", { replace: true });
@@ -116,20 +140,6 @@ export default function Checkout() {
     setAddress((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
   };
-
-  const InputField = ({ label, field, placeholder, type = "text" }: { label: string; field: string; placeholder: string; type?: string }) => (
-    <div>
-      <label className="text-sm font-medium mb-1 block">{label}</label>
-      <input
-        type={type}
-        value={(address as any)[field] || ""}
-        onChange={(e) => updateAddress(field as keyof OrderAddress, e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-      />
-      {errors[field] && <p className="mt-1 text-xs text-destructive">{errors[field]}</p>}
-    </div>
-  );
 
   if (!isAuthenticated || items.length === 0) return null;
 
@@ -146,18 +156,18 @@ export default function Checkout() {
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="font-display text-lg font-semibold mb-4">Delivery Address</h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                <InputField label="Full Name" field="fullName" placeholder="John Doe" />
-                <InputField label="Email" field="email" placeholder="you@example.com" type="email" />
-                <InputField label="Phone Number" field="phone" placeholder="+1 234 567 8900" />
+                <InputField label="Full Name" field="fullName" placeholder="John Doe" address={address} errors={errors} updateAddress={updateAddress} />
+                <InputField label="Email" field="email" placeholder="you@example.com" type="email" address={address} errors={errors} updateAddress={updateAddress} />
+                <InputField label="Phone Number" field="phone" placeholder="+1 234 567 8900" address={address} errors={errors} updateAddress={updateAddress} />
                 <div className="sm:col-span-2">
-                  <InputField label="Address Line 1" field="address1" placeholder="123 Main Street" />
+                  <InputField label="Address Line 1" field="address1" placeholder="123 Main Street" address={address} errors={errors} updateAddress={updateAddress} />
                 </div>
                 <div className="sm:col-span-2">
-                  <InputField label="Address Line 2" field="address2" placeholder="Apt, Suite (optional)" />
+                  <InputField label="Address Line 2" field="address2" placeholder="Apt, Suite (optional)" address={address} errors={errors} updateAddress={updateAddress} />
                 </div>
-                <InputField label="City" field="city" placeholder="New York" />
-                <InputField label="State" field="state" placeholder="NY" />
-                <InputField label="Pincode" field="pincode" placeholder="10001" />
+                <InputField label="City" field="city" placeholder="New York" address={address} errors={errors} updateAddress={updateAddress} />
+                <InputField label="State" field="state" placeholder="NY" address={address} errors={errors} updateAddress={updateAddress} />
+                <InputField label="Pincode" field="pincode" placeholder="10001" address={address} errors={errors} updateAddress={updateAddress} />
               </div>
             </div>
 
@@ -173,11 +183,10 @@ export default function Checkout() {
                   <button
                     key={m.id}
                     onClick={() => setPaymentMethod(m.id)}
-                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-sm font-medium transition-all ${
-                      paymentMethod === m.id
-                        ? "border-accent bg-accent/10 text-accent"
-                        : "border-border hover:border-foreground/30"
-                    }`}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-sm font-medium transition-all ${paymentMethod === m.id
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border hover:border-foreground/30"
+                      }`}
                   >
                     <span className="text-2xl">{m.emoji}</span>
                     {m.label}
@@ -190,18 +199,18 @@ export default function Checkout() {
                   <div className="space-y-3">
                     <div>
                       <label className="text-sm font-medium mb-1 block">Card Number</label>
-                      <input value={cardNumber} onChange={(e) => { setCardNumber(e.target.value); if (errors.cardNumber) setErrors(p => { const n = {...p}; delete n.cardNumber; return n; }); }} placeholder="4242 4242 4242 4242" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
+                      <input value={cardNumber} onChange={(e) => { setCardNumber(e.target.value); if (errors.cardNumber) setErrors(p => { const n = { ...p }; delete n.cardNumber; return n; }); }} placeholder="4242 4242 4242 4242" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
                       {errors.cardNumber && <p className="mt-1 text-xs text-destructive">{errors.cardNumber}</p>}
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="text-sm font-medium mb-1 block">Expiry</label>
-                        <input value={cardExpiry} onChange={(e) => { setCardExpiry(e.target.value); if (errors.cardExpiry) setErrors(p => { const n = {...p}; delete n.cardExpiry; return n; }); }} placeholder="MM/YY" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
+                        <input value={cardExpiry} onChange={(e) => { setCardExpiry(e.target.value); if (errors.cardExpiry) setErrors(p => { const n = { ...p }; delete n.cardExpiry; return n; }); }} placeholder="MM/YY" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
                         {errors.cardExpiry && <p className="mt-1 text-xs text-destructive">{errors.cardExpiry}</p>}
                       </div>
                       <div>
                         <label className="text-sm font-medium mb-1 block">CVV</label>
-                        <input value={cardCvv} onChange={(e) => { setCardCvv(e.target.value); if (errors.cardCvv) setErrors(p => { const n = {...p}; delete n.cardCvv; return n; }); }} placeholder="123" type="password" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
+                        <input value={cardCvv} onChange={(e) => { setCardCvv(e.target.value); if (errors.cardCvv) setErrors(p => { const n = { ...p }; delete n.cardCvv; return n; }); }} placeholder="123" type="password" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
                         {errors.cardCvv && <p className="mt-1 text-xs text-destructive">{errors.cardCvv}</p>}
                       </div>
                     </div>
@@ -210,7 +219,7 @@ export default function Checkout() {
                 {paymentMethod === "upi" && (
                   <div>
                     <label className="text-sm font-medium mb-1 block">UPI ID</label>
-                    <input value={upiId} onChange={(e) => { setUpiId(e.target.value); if (errors.upiId) setErrors(p => { const n = {...p}; delete n.upiId; return n; }); }} placeholder="yourname@upi" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
+                    <input value={upiId} onChange={(e) => { setUpiId(e.target.value); if (errors.upiId) setErrors(p => { const n = { ...p }; delete n.upiId; return n; }); }} placeholder="yourname@upi" className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" />
                     {errors.upiId && <p className="mt-1 text-xs text-destructive">{errors.upiId}</p>}
                   </div>
                 )}

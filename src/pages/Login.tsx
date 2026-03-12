@@ -31,7 +31,7 @@ export default function Login() {
         event: 'login',
         user_email: email
       });
-      
+
       navigate(redirectTo, { replace: true });
     } else {
       setError(result.error || "Something went wrong");
