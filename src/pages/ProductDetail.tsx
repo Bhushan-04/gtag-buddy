@@ -36,6 +36,16 @@ export default function ProductDetail() {
       return;
     }
     addItem(product, selectedSize);
+    
+    // Send add_to_cart event to GTM
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'add_to_cart',
+      product_name: product.name,
+      value: product.price,
+      currency: 'USD'
+    });
+
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
